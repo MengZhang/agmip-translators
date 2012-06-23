@@ -29,7 +29,39 @@ public abstract class DssatCommonInput implements TranslatorInput {
     protected String defValC = "";
     protected String defValI = "-99";
     protected String defValD = "20110101";
+    protected String jsonKey = "unknown";
 
+    /**
+     * DSSAT Data Output method for Controller using
+     * 
+     * @param m  The holder for BufferReader objects for all files
+     * @return result data holder object
+     */
+    protected abstract AdvancedHashMap readFile(HashMap m) throws IOException;
+    
+   /**
+     * DSSAT XFile Data input method
+     * 
+     * @param arg0  file name
+     * @return result data holder object
+     */
+    @Override
+    public AdvancedHashMap readFile(String arg0) {
+
+        AdvancedHashMap ret = new AdvancedHashMap();
+        String filePath = arg0;
+
+        try {
+            // read file by file
+            ret = readFile(getBufferReader(filePath));
+
+        } catch (Exception e) {
+            System.out.println(e.toString());
+        }
+        
+        return ret;
+    }
+    
     /**
      * Set reading flgs for reading lines
      * 
