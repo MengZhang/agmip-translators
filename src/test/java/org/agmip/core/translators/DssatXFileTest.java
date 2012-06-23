@@ -13,7 +13,7 @@ import org.junit.Test;
 
 /**
  *
- * @author mike
+ * @author Meng Zhang
  */
 public class DssatXFileTest {
     

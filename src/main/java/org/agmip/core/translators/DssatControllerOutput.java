@@ -8,7 +8,7 @@ import org.agmip.core.types.AdvancedHashMap;
 
 /**
  *
- * @author Mike
+ * @author Meng Zhang
  */
 public class DssatControllerOutput {
 
