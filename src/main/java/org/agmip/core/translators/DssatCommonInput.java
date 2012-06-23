@@ -1,7 +1,18 @@
 package org.agmip.core.translators;
 
+import java.io.BufferedReader;
+import java.io.CharArrayReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import org.agmip.core.types.AdvancedHashMap;
 import org.agmip.core.types.TranslatorInput;
 
@@ -14,6 +25,10 @@ import org.agmip.core.types.TranslatorInput;
 public abstract class DssatCommonInput implements TranslatorInput {
 
     protected String[] flg = new String[3];
+    protected String defValR = "-99.0";
+    protected String defValC = "";
+    protected String defValI = "-99";
+    protected String defValD = "20110101";
 
     /**
      * Set reading flgs for reading lines
@@ -143,8 +158,95 @@ public abstract class DssatCommonInput implements TranslatorInput {
      */
     protected String getExName() {
 
+        // TODO
         String ret = "";
 
         return ret;
+    }
+
+    /**
+     * Check if input is a valid value
+     *
+     * @return check result
+     */
+    protected boolean checkValidValue(String value) {
+        if (value.trim().equals(defValC) || value.equals(defValI) || value.equals(defValR)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * Get BufferReader for each type of file
+     *
+     * @param filePath the full path of the input file
+     * @return result the holder of BufferReader for different type of files
+     * @throws FileNotFoundException
+     * @throws IOException
+     */
+    protected HashMap getBufferReader(String filePath) throws FileNotFoundException, IOException {
+
+        HashMap result = new HashMap();
+        InputStream in;
+        ArrayList arrW = new ArrayList();
+        ArrayList arrS = new ArrayList();
+
+        // If input File is ZIP file
+        if (filePath.toUpperCase().endsWith(".ZIP")) {
+
+            ZipEntry entry;
+            in = new ZipInputStream(new FileInputStream(filePath));
+
+            while ((entry = ((ZipInputStream) in).getNextEntry()) != null) {
+                if (!entry.isDirectory()) {
+                    if (entry.getName().matches(".+\\.\\w{2}[Xx]")) {
+                        result.put("X", getBuf(in, (int) entry.getSize()));
+                    } else if (entry.getName().toUpperCase().endsWith(".WTH")) {
+                        arrW.add(getBuf(in, (int) entry.getSize()));
+                    } else if (entry.getName().toUpperCase().endsWith(".SOL")) {
+                        arrS.add(getBuf(in, (int) entry.getSize()));
+                    } else if (entry.getName().matches(".+\\.\\w{2}[Aa]")) {
+                        result.put("A", getBuf(in, (int) entry.getSize()));
+                    } else if (entry.getName().matches(".+\\.\\w{2}[Tt]")) {
+                        result.put("T", getBuf(in, (int) entry.getSize()));
+                    }
+                }
+            }
+        } // If input File is not ZIP file
+        else {
+            in = new FileInputStream(filePath);
+            if (filePath.matches(".+\\.\\w{2}[Xx]")) {
+                result.put("X", new BufferedReader(new InputStreamReader(in)));
+            } else if (filePath.toUpperCase().endsWith(".WTH")) {
+                arrW.add(new BufferedReader(new InputStreamReader(in)));
+            } else if (filePath.toUpperCase().endsWith(".SOL")) {
+                arrS.add(new BufferedReader(new InputStreamReader(in)));
+            } else if (filePath.matches(".+\\.\\w{2}[Aa]")) {
+                result.put("A", new BufferedReader(new InputStreamReader(in)));
+            } else if (filePath.matches(".+\\.\\w{2}[Tt]")) {
+                result.put("T", new BufferedReader(new InputStreamReader(in)));
+            }
+        }
+
+        result.put("W", arrW);
+        result.put("S", arrS);
+
+        return result;
+    }
+
+    /**
+     * Get BufferReader object from Zip entry
+     *
+     * @param in The input stream of zip file
+     * @param size The entry size
+     * @return result The BufferReader object for current entry
+     * @throws IOException
+     */
+    private BufferedReader getBuf(InputStream in, int size) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(in));
+        char[] buf = new char[size];
+        br.read(buf);
+        return new BufferedReader(new CharArrayReader(buf));
     }
 }
