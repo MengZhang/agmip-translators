@@ -7,7 +7,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -221,8 +220,9 @@ public abstract class DssatCommonInput implements TranslatorInput {
 
         HashMap result = new HashMap();
         InputStream in;
-        ArrayList arrW = new ArrayList();
-        ArrayList arrS = new ArrayList();
+        HashMap mapW = new HashMap();
+        HashMap mapS = new HashMap();
+        String[] tmp = filePath.split("[\\/]");
 
         // If input File is ZIP file
         if (filePath.toUpperCase().endsWith(".ZIP")) {
@@ -235,9 +235,9 @@ public abstract class DssatCommonInput implements TranslatorInput {
                     if (entry.getName().matches(".+\\.\\w{2}[Xx]")) {
                         result.put("X", getBuf(in, (int) entry.getSize()));
                     } else if (entry.getName().toUpperCase().endsWith(".WTH")) {
-                        arrW.add(getBuf(in, (int) entry.getSize()));
+                        mapW.put(entry.getName().toUpperCase(), getBuf(in, (int) entry.getSize()));
                     } else if (entry.getName().toUpperCase().endsWith(".SOL")) {
-                        arrS.add(getBuf(in, (int) entry.getSize()));
+                        mapS.put(entry.getName().toUpperCase(), getBuf(in, (int) entry.getSize()));
                     } else if (entry.getName().matches(".+\\.\\w{2}[Aa]")) {
                         result.put("A", getBuf(in, (int) entry.getSize()));
                     } else if (entry.getName().matches(".+\\.\\w{2}[Tt]")) {
@@ -251,9 +251,9 @@ public abstract class DssatCommonInput implements TranslatorInput {
             if (filePath.matches(".+\\.\\w{2}[Xx]")) {
                 result.put("X", new BufferedReader(new InputStreamReader(in)));
             } else if (filePath.toUpperCase().endsWith(".WTH")) {
-                arrW.add(new BufferedReader(new InputStreamReader(in)));
+                mapW.put(filePath, new BufferedReader(new InputStreamReader(in)));
             } else if (filePath.toUpperCase().endsWith(".SOL")) {
-                arrS.add(new BufferedReader(new InputStreamReader(in)));
+                mapS.put(filePath, new BufferedReader(new InputStreamReader(in)));
             } else if (filePath.matches(".+\\.\\w{2}[Aa]")) {
                 result.put("A", new BufferedReader(new InputStreamReader(in)));
             } else if (filePath.matches(".+\\.\\w{2}[Tt]")) {
@@ -261,8 +261,9 @@ public abstract class DssatCommonInput implements TranslatorInput {
             }
         }
 
-        result.put("W", arrW);
-        result.put("S", arrS);
+        result.put("W", mapW);
+        result.put("S", mapS);
+        result.put("Z", tmp[tmp.length - 1]);
 
         return result;
     }

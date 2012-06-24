@@ -5,16 +5,8 @@
 package org.agmip.core.translators;
 
 import java.io.BufferedReader;
-import java.io.CharArrayReader;
-import java.io.DataInputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 import org.agmip.core.types.AdvancedHashMap;
 
 /**
@@ -34,7 +26,7 @@ public class DssatXFileInput extends DssatCommonInput {
         super();
         jsonKey = "experiment";
     }
-    
+
     /**
      * DSSAT XFile Data input method for Controller using
      * 
@@ -43,18 +35,19 @@ public class DssatXFileInput extends DssatCommonInput {
      */
     @Override
     protected AdvancedHashMap readFile(HashMap brMap) throws IOException {
-        
+
         AdvancedHashMap ret = new AdvancedHashMap();
         String line;
-        BufferedReader br = null;
+        BufferedReader br;
         BufferedReader brw = null;
-        ArrayList arrW;
-        
+        HashMap mapW;
+        String wid;
+        String fileName;
+
         br = (BufferedReader) brMap.get("X");
-        arrW = ((ArrayList) brMap.get("W"));
-        if (!arrW.isEmpty()) {
-            brw = (BufferedReader) arrW.get(0);
-        }
+        mapW = (HashMap) brMap.get("W");
+        fileName = (String) brMap.get("Z");
+        wid = fileName.length() > 4 ? fileName.substring(0, 4) : fileName;
 
         // If XFile is no been found
         if (br == null) {
@@ -129,6 +122,7 @@ public class DssatXFileInput extends DssatCommonInput {
 
                 if (flg[1].startsWith("l id_") && flg[2].equals("data")) {
                     //TODO
+                    wid = line.substring(12, 20).trim();
                 } else if (flg[1].startsWith("l ...") && flg[2].equals("data")) {
 
                     String strLat = line.substring(3, 18).trim();
@@ -138,6 +132,12 @@ public class DssatXFileInput extends DssatCommonInput {
                     if (!checkValidValue(strLat) || !checkValidValue(strLong) || (Double.parseDouble(strLat) == 0 && Double.parseDouble(strLong) == 0)) {
 
                         // check if weather is validable
+                        for (Object key : mapW.keySet()) {
+                            if (((String) key).contains(wid)) {
+                                brw = (BufferedReader) mapW.get(key);
+                                break;
+                            }
+                        }
                         if (brw != null) {
                             String lineW;
                             while ((lineW = brw.readLine()) != null) {
@@ -208,16 +208,16 @@ public class DssatXFileInput extends DssatCommonInput {
 
         br.close();
         brw.close();
-        
+
         return ret;
     }
 
-    @Override
     /**
      * Set reading flgs for title lines
      * 
      * @param line  the string of reading line
      */
+    @Override
     protected void setTitleFlgs(String line) {
         flg[0] = line.substring(1).trim().toLowerCase();
         flg[1] = "";
