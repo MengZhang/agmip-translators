@@ -20,7 +20,7 @@ public class DssatSoilOutput extends DssatCommonOutput {
     /**
      * DSSAT Soil Data Output method
      * 
-     * @param arg0  file name(?)
+     * @param arg0   file output path
      * @param result  data holder object
      */
     @Override
@@ -50,7 +50,8 @@ public class DssatSoilOutput extends DssatCommonOutput {
             } else {
                 fileName = fileName.substring(0, 2) + ".SOL";
             }
-            br = new BufferedWriter(new FileWriter(new File(fileName)));
+            arg0 = revisePath(arg0);
+            br = new BufferedWriter(new FileWriter(new File(arg0 + fileName)));
 
             // Output Soil File
             // Titel Section

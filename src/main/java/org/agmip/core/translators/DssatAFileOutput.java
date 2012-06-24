@@ -19,7 +19,7 @@ public class DssatAFileOutput extends DssatCommonOutput {
     /**
      * DSSAT Observation Data Output method
      *
-     * @param arg0 file name(?)
+     * @param arg0  file output path
      * @param result data holder object
      */
     @Override
@@ -207,7 +207,8 @@ public class DssatAFileOutput extends DssatCommonOutput {
             } else {
                 fileName = fileName.substring(0, fileName.length() - 2) + "." + fileName.substring(fileName.length() - 2) + "A";
             }
-            br = new BufferedWriter(new FileWriter(new File(fileName)));
+            arg0 = revisePath(arg0);
+            br = new BufferedWriter(new FileWriter(new File(arg0 + fileName)));
 
             // Output Observation File
             // Titel Section

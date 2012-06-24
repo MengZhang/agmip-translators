@@ -22,7 +22,7 @@ public class DssatXFileOutput extends DssatCommonOutput {
     /**
      * DSSAT Experiment Data Output method
      * 
-     * @param arg0  file name(?)
+     * @param arg0  file output path
      * @param result  data holder object
      */
     @Override
@@ -96,7 +96,8 @@ public class DssatXFileOutput extends DssatCommonOutput {
             } else {
                 fileName = fileName.substring(0, fileName.length() - 2) + "." + fileName.substring(fileName.length() - 2) + "X";
             }
-            br = new BufferedWriter(new FileWriter(new File(fileName)));
+            arg0 = revisePath(arg0);
+            br = new BufferedWriter(new FileWriter(new File(arg0 + fileName)));
             data = result;
 
             // Output XFile

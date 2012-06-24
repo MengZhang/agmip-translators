@@ -22,7 +22,7 @@ public class DssatWeatherOutput extends DssatCommonOutput {
     /**
      * DSSAT Weather Data Output method
      * 
-     * @param arg0  file name(?)
+     * @param arg0  file output path
      * @param result  data holder object
      */
     @Override
@@ -58,7 +58,8 @@ public class DssatWeatherOutput extends DssatCommonOutput {
             } else {
                 fileName += data.getOr("w_date", "00").toString().substring(0, 2) + "01.WTH";
             }
-            br = new BufferedWriter(new FileWriter(new File(fileName)));
+            arg0 = revisePath(arg0);
+            br = new BufferedWriter(new FileWriter(new File(arg0 + fileName)));
 
             // Output Weather File
             // Titel Section

@@ -19,7 +19,7 @@ public class DssatTFileOutput extends DssatCommonOutput {
     /**
      * DSSAT Observation Data Output method
      *
-     * @param arg0 file name(?)
+     * @param arg0  file output path
      * @param result data holder object
      */
     @Override
@@ -594,7 +594,8 @@ public class DssatTFileOutput extends DssatCommonOutput {
             } else {
                 fileName = fileName.substring(0, fileName.length() - 2) + "." + fileName.substring(fileName.length() - 2) + "T";
             }
-            br = new BufferedWriter(new FileWriter(new File(fileName)));
+            arg0 = revisePath(arg0);
+            br = new BufferedWriter(new FileWriter(new File(arg0 + fileName)));
 
             // Output Observation File
             // Titel Section
@@ -645,9 +646,9 @@ public class DssatTFileOutput extends DssatCommonOutput {
                     sbData.append(String.format(" %1$5d", trno));
                     sbData.append(String.format(" %1$5d", formatDateStr(record.getOr("date", defValI).toString()))); // TODO waiting for the id
                     for (int k = i * 40; k < limit; k++) {
-                        
+
                         sbData.append(" ").append(formatNumStr(5, record.getOr(titleOutputId[k].toString(), defValI).toString()));
-                    
+
                     }
                     sbData.append("\r\n");
                 }
